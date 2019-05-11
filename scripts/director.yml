@@ -1,0 +1,50 @@
+---
+properties-configuration:
+  director_configuration:
+    ntp_servers_string: 0.pool.ntp.org,1.pool.ntp.org
+    resurrector_enabled: true
+    retry_bosh_deploys: true
+    blobstore_type: local
+  iaas_configuration:
+    bosh_storage_account_name: ((bosh_root_storage_account))
+    client_id: ((client_id))
+    client_secret: ((client_secret))
+    cloud_storage_type: storage_accounts
+    storage_account_type: Premium_LRS
+    cloud_storage_type: managed_disks
+    default_security_group: ((default_security_group_name))
+    environment: AzureCloud
+    resource_group_name: ((resource_group_name))
+    ssh_public_key: ((ops_manager_ssh_public_key))
+    ssh_private_key: ((ops_manager_ssh_private_key))
+    subscription_id: ((subscription_id))
+    tenant_id: ((tenant_id))
+resource-configuration:
+  compilation:
+    instances: automatic
+    instance_type:
+      id: Standard_DS3_v2
+    internet_connected: false
+  director:
+    instances: automatic
+    persistent_disk:
+      size_mb: "307200"
+    instance_type:
+      id: automatic
+    internet_connected: false
+network-assignment:
+  network:
+    name: control-plane
+  singleton_availability_zone:
+    name: "null"
+networks-configuration:
+  networks:
+  - name: control-plane
+    subnets:
+    - iaas_identifier: ((resource_group_name))/((network))/((subnetwork))
+      cidr: ((internal_cidr))
+      reserved_ip_ranges: ((reserved_ip_ranges))
+      gateway: ((internal_gw))
+      dns: ((dns_servers))
+      availability_zone_names:
+      - "null"
