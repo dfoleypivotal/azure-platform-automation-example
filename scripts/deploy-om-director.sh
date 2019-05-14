@@ -20,7 +20,7 @@ export director_reserved_ip_ranges="10.0.8.1-10.0.8.9"
 export director_internal_gw=$(terraform output infrastructure_subnet_gateway)
 export director_dns_servers="168.63.129.16,8.8.8.8"
 
-source ./set-om-creds.sh
+source $SCRIPT_DIR/set-om-creds.sh
 
 echo "Configuring Ops Manager Authentication"
 om -t $OM_TARGET --skip-ssl-validation \
