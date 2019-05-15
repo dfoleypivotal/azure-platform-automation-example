@@ -156,7 +156,9 @@ echo https://"$(terraform output ops_manager_dns)"
 
 - Retrieve the assets from [Pivotal Network](https://network.pivotal.io/). Download the manifest and all of the releases from [Pivotal Control Plane Components](https://network.pivotal.io/products/p-control-plane-components/#/releases/359492)
 
-    ![](images/image12.png)
+**Note:** Currently you need to select **Release 0.0.31**
+
+![](images/image12.png)
 
 - Download the stemcell for the releases from [Stemcells for PCF](https://network.pivotal.io/products/stemcells-ubuntu-xenial#/releases/354816)
 
@@ -166,7 +168,7 @@ echo https://"$(terraform output ops_manager_dns)"
 - Move downloaded files to current directory (it will make it easier to upload the assets later)
 
 ```bash
-cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgres-release*.tgz,garden-runc*.tgz,concourse-release*.tgz,*bosh-stemcell*.tgz,bosh-dns*.tgz} .
+cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgres-release*.tgz,garden-runc*.tgz,concourse-release*.tgz,*bosh-stemcell*.tgz} .
 ```
 
 ![](images/image14.png)
@@ -174,7 +176,7 @@ cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgre
 - You need to upload each asset to your Ops Manager VM in order to upload them to BOSH. Save the Ops Manager SSH KEY to an environment variable (the ***OPS_MANAGER_KEY_PATH*** variable can be arbitrary)
 
 ```bash
-export OPS_MANAGER_KEY_PATH=/your/ssh/key/path
+export OPS_MANAGER_KEY_PATH=./ops_manager_ssh_private_key
 
 terraform output ops_manager_ssh_private_key > $OPS_MANAGER_KEY_PATH
 chmod 0600 $OPS_MANAGER_KEY_PATH
@@ -207,7 +209,6 @@ bosh upload-release credhub-release-*.tgz
 bosh upload-release garden-runc-release-*.tgz
 bosh upload-release postgres-release-*.tgz
 bosh upload-release uaa-release-*.tgz
-bosh upload-release bosh-dns-*.tgz
 ```
 
 ![](images/image17.png)
@@ -240,7 +241,6 @@ om --skip-ssl-validation create-vm-extension \
 om --skip-ssl-validation apply-changes
 ```
 
-
 - Retrieve the Control Plane domain and availability zones from Terraform.
 
 ```bash
@@ -268,6 +268,10 @@ uaa_ca_cert: |
 bosh deploy -d control-plane control-plane-*.yml \
   --vars-file=./bosh-vars.yml
 ```
+
+![](images/image18.png)
+
+
 
 
 

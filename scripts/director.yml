@@ -34,7 +34,7 @@ resource-configuration:
     internet_connected: false
 network-assignment:
   network:
-    name: infrastructure
+    name: control-plane
   singleton_availability_zone:
     name: "null"
 networks-configuration:
