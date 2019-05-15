@@ -31,7 +31,7 @@ om -t $OM_TARGET --skip-ssl-validation \
   configure-authentication \
     --decryption-passphrase pivotal123 \
     --username admin \
-    --password pivotal123
+    --password $(terraform output ops_manager_password)
 
 echo "Configuring Ops Manager Director"
 om -t $OM_TARGET --skip-ssl-validation \

@@ -37,7 +37,7 @@ git clone https://github.com/dfoleypivotal/azure-platform-automation-example.git
 - Clone terraforming-azure repository
 
 ```bash
-git clone https://github.com/pivotal-cf/terraforming-azure.git
+git clone https://github.com/dfoleypivotal/terraforming-azure.git
 cd terraforming-azure/terraforming-control-plane/
 ```
 
@@ -187,7 +187,7 @@ chmod 0600 $OPS_MANAGER_KEY_PATH
 ```bash
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME="admin"
-export OM_PASSWORD="the ops manager password"
+export OM_PASSWORD="$(terraform output ops_manager_password)"
 ```
 
 ![](images/image16.png)
