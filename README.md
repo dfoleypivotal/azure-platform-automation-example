@@ -186,7 +186,7 @@ chmod 0600 $OPS_MANAGER_KEY_PATH
 
 ```bash
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
-export OM_USERNAME="the ops manager user name"
+export OM_USERNAME="admin"
 export OM_PASSWORD="the ops manager password"
 ```
 

@@ -34,17 +34,27 @@ resource-configuration:
     internet_connected: false
 network-assignment:
   network:
-    name: control-plane
+    name: infrastructure
   singleton_availability_zone:
     name: "null"
 networks-configuration:
+  icmp_checks_enabled: false
   networks:
   - name: control-plane
     subnets:
-    - iaas_identifier: ((resource_group_name))/((network))/((subnetwork))
-      cidr: ((internal_cidr))
-      reserved_ip_ranges: ((reserved_ip_ranges))
-      gateway: ((internal_gw))
+    - iaas_identifier: ((resource_group_name))/((network))/((plane_subnetwork))
+      cidr: ((plane_cidr))
+      reserved_ip_ranges: ((plane_reserved_ip_ranges))
+      gateway: ((plane_gw))
+      dns: ((dns_servers))
+      availability_zone_names:
+      - "null"
+  - name: infrastructure
+    subnets:
+    - iaas_identifier: ((resource_group_name))/((network))/((infra_subnetwork))
+      cidr: ((infra_cidr))
+      reserved_ip_ranges: ((infra_reserved_ip_ranges))
+      gateway: ((infra_gw))
       dns: ((dns_servers))
       availability_zone_names:
       - "null"

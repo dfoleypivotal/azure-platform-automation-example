@@ -14,10 +14,14 @@ export director_ops_manager_ssh_private_key=$(terraform output ops_manager_ssh_p
 export director_subscription_id=$(terraform output subscription_id)
 export director_tenant_id=$(terraform output tenant_id)
 export director_network=$(terraform output network_name)
-export director_subnetwork=$(terraform output infrastructure_subnet_name)
-export director_internal_cidr=$(terraform output infrastructure_subnet_cidr)
-export director_reserved_ip_ranges="10.0.8.1-10.0.8.9"
-export director_internal_gw=$(terraform output infrastructure_subnet_gateway)
+export director_infra_subnetwork=$(terraform output infrastructure_subnet_name)
+export director_infra_cidr=$(terraform output infrastructure_subnet_cidr)
+export director_infra_reserved_ip_ranges="10.0.8.1-10.0.8.9"
+export director_infra_gw=$(terraform output infrastructure_subnet_gateway)
+export director_plane_subnetwork=$(terraform output control_plane_subnet_name)
+export director_plane_cidr=$(terraform output control_plane_subnet_cidr)
+export director_plane_reserved_ip_ranges="10.0.10.1-10.0.10.9"
+export director_plane_gw=$(terraform output control_plane_subnet_gateway)
 export director_dns_servers="168.63.129.16,8.8.8.8"
 
 source $SCRIPT_DIR/set-om-creds.sh
