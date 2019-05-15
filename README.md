@@ -150,7 +150,7 @@ echo https://"$(terraform output ops_manager_dns)"
 ../../azure-platform-automation-example/scripts/deploy-om-director.sh
 ```
 
-- Add image
+![](images/image11.5.png)
 
 ### **STEP 5**: Deploy Control Plane via Manifest
 
@@ -166,7 +166,7 @@ echo https://"$(terraform output ops_manager_dns)"
 - Move downloaded files to current directory (it will make it easier to upload the assets later)
 
 ```bash
-cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgres-release*.tgz,garden-runc*.tgz,concourse-release*.tgz,*bosh-stemcell*.tgz, bosh-dns*.tgz} .
+cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgres-release*.tgz,garden-runc*.tgz,concourse-release*.tgz,*bosh-stemcell*.tgz,bosh-dns*.tgz} .
 ```
 
 ![](images/image14.png)
@@ -259,8 +259,16 @@ network_name: control-plane
 wildcard_domain: "*.pcfcontrolplane.<your domain>"
 uaa_url: https://uaa.pcfcontrolplane.<your domain>
 uaa_ca_cert: |
- $(credhub get -n /p-bosh/control-plane/control-plane-tls -k certificate | awk ‘{printf “%s\r\n  “, $0}’)
+  $(credhub get -n /p-bosh/control-plane/control-plane-tls -k certificate | awk ‘{printf “%s\r\n  “, $0}’)
  ```
+
+- Deploy the manifest from the Ops Manager VM
+
+```bash
+bosh deploy -d control-plane control-plane-*.yml \
+  --vars-file=./bosh-vars.yml
+```
+
 
 
 
