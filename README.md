@@ -263,11 +263,21 @@ uaa_ca_cert: |
   $(credhub get -n /p-bosh/control-plane/control-plane-tls -k certificate | awk ‘{printf “%s\r\n  “, $0}’)
  ```
 
+- Create  an operations file **azure-vm-extension.yml** with a single operation that replaces value of **vm_extension**.
+
+```vi
+- type: replace
+  path: /instance_groups/name=web/vm_extensions?
+  value: [control-plane-lb]
+  ```
+ 
+
 - Deploy the manifest from the Ops Manager VM
 
 ```bash
 bosh deploy -d control-plane control-plane-*.yml \
-  --vars-file=./bosh-vars.yml
+  --vars-file=./bosh-vars.yml \
+  --ops-file=./azure-vm-extension.yml
 ```
 
 ![](images/image18.png)

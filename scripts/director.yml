@@ -84,3 +84,8 @@ networks-configuration:
       dns: ((dns_servers))
       availability_zone_names:
       - "null"
+vmextensions-configuration:
+- name: control-plane-lb
+  cloud_properties:
+    security_group: controlplane-plane-security-group
+    load_balancer: controlplane-lb
