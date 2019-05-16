@@ -1,11 +1,29 @@
 ---
 properties-configuration:
   director_configuration:
+    allow_legacy_agents: true
+    blobstore_type: local
+    bosh_recreate_on_next_deploy: false
+    bosh_recreate_persistent_disks_on_next_deploy: false
+    database_type: internal
+    director_worker_count: 5
+    encryption:
+      keys: []
+      providers: []
+    hm_emailer_options:
+      enabled: false
+    hm_pager_duty_options:
+      enabled: false
+    identification_tags: {}
+    keep_unreachable_vms: false
+    local_blobstore_options:
+      tls_enabled: true
     ntp_servers_string: 0.pool.ntp.org,1.pool.ntp.org
+    post_deploy_enabled: true
     resurrector_enabled: true
     retry_bosh_deploys: true
-    blobstore_type: local
   iaas_configuration:
+    additional_cloud_properties: {}
     bosh_storage_account_name: ((bosh_root_storage_account))
     client_id: ((client_id))
     client_secret: ((client_secret))
@@ -19,22 +37,30 @@ properties-configuration:
     ssh_private_key: ((ops_manager_ssh_private_key))
     subscription_id: ((subscription_id))
     tenant_id: ((tenant_id))
+    name: default
+  security_configuration:
+    generate_vm_passwords: true
+    opsmanager_root_ca_trusted_certs: false
+  syslog_configuration:
+    enabled: false
 resource-configuration:
   compilation:
     instances: automatic
     instance_type:
-      id: Standard_DS3_v2
+      id: automatic
     internet_connected: false
   director:
     instances: automatic
     persistent_disk:
-      size_mb: "307200"
+      size_mb: automatic
     instance_type:
       id: automatic
     internet_connected: false
 network-assignment:
   network:
-    name: control-plane
+    name: infrastructure
+  other_availability_zones:
+  - name: "null"
   singleton_availability_zone:
     name: "null"
 networks-configuration:
@@ -42,7 +68,7 @@ networks-configuration:
   networks:
   - name: control-plane
     subnets:
-    - iaas_identifier: ((resource_group_name))/((network))/((plane_subnetwork))
+    - iaas_identifier: ((network))/((plane_subnetwork))
       cidr: ((plane_cidr))
       reserved_ip_ranges: ((plane_reserved_ip_ranges))
       gateway: ((plane_gw))
@@ -51,7 +77,7 @@ networks-configuration:
       - "null"
   - name: infrastructure
     subnets:
-    - iaas_identifier: ((resource_group_name))/((network))/((infra_subnetwork))
+    - iaas_identifier: ((network))/((infra_subnetwork))
       cidr: ((infra_cidr))
       reserved_ip_ranges: ((infra_reserved_ip_ranges))
       gateway: ((infra_gw))

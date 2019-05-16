@@ -65,11 +65,11 @@ brew install az-automation
 
 ![](images/image3.png)
 
-- Run the following command. Replace **some-account-id** with your **subscription id** and create a unique **identifier=uri**.
+- Run the following command. Replace **`<your subscription id>`** with your **subscription id** and create a unique **`identifier-uri`**.
 
 ```bash
 az-automation \
-  --account some-account-id \
+  --account <your subscription id> \
   --identifier-uri http://example.com \
   --display-name controlplane \
   --credential-output-file controlplane-credentials.tfvars
@@ -228,6 +228,7 @@ bosh upload-release uaa-release-*.tgz
 vm-extension-config:
   name: control-plane-lb
   cloud_properties:
+   security_group: controlplane-plane-security-group
    load_balancer: ((control-plane-lb))
 ```
 
