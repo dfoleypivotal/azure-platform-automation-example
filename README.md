@@ -290,7 +290,15 @@ echo https://"$(terraform output control_plane_domain)"
 
 ### **STEP 7**: Login using FLY CLI
 
-- login to Concourse using the main team. You wiReplace **password** with value retrieved from Credhub.
+- If you don't already have the **fly cli** install you can download from the concourse page. Just click on the icon for you operating system.
+
+  ![](images/image24.5.png)
+
+- After the **fly cli** is downloaded make it executable and copy to a location in your path.
+
+  ![](images/image24.7.png)
+
+- login to Concourse using the main team. 
 
 **Note:** You will be ask to authenticate via the browser. Copy the URL into your browser. Since we already authenticated in previous step you should not be ask to login.
 
