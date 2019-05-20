@@ -3,18 +3,22 @@ Update: May 9, 2019
 
 ## Introduction
 
-This workshop will walk you through the process of deploying **Pivotal Cloud Foundry (PCF)** on **Microsoft Azure**. We will stand up **Concourse** using **Pivotal Control Plane** and deploy PCF using **Platform Automation**.
+This workshop will walk you through the process of deploying **Pivotal Cloud Foundry (PCF)** on **Microsoft Azure**. We will stand up **Concourse** using **Pivotal Control Plane** and deploy PCF using **Platform Automation**. For complete documentation check out [Pivotal Control Plane](https://control-plane-docs.cfapps.io/)
 
 ***To log issues***, click here to go to the [github](https://github.com/dfoleypivotal/azure-platform-automation-example/issues) repository issue submission form.
 
 ## Objectives
 
 - [Install Pivotal Control Plane](#install)
+- [Login to Concourse](#concourse)
 
 ## Required Artifacts
 
 - The following lab requires a Microsoft Azure account.
 - A registered domain name is required to deploy PCF.
+- [Terraform](https://www.terraform.io/downloads.html)
+- [OM CLI](https://github.com/pivotal-cf/om)
+- [BOSH CLI](https://github.com/cloudfoundry/bosh-cli/releases)
 
 <a id="install"></a>
 
@@ -22,7 +26,7 @@ This workshop will walk you through the process of deploying **Pivotal Cloud Fou
 
 ### **STEP 1**: Clone Terraform template repository
 
-- Open a terminal window and change to working directory. For documentation working directory location will be /Users/dfoley/development/Azure.
+- Open a terminal window and change to working directory. For documentation, working directory location will be `/Users/dfoley/development/Azure`.
 
 ```bash
 cd /Users/dfoley/development/Azure
@@ -56,42 +60,28 @@ az account list
 
 **Note:** Copy **Id** an **Tenant Id** as these values will be used later in the lab.
 
-- To create the automation account, you need **az-automation**. You can use brew or go to the [releases](https://github.com/genevieve/az-automation/releases) and get the necessary binary.
+- Create Service Account for Bosh. For more details please view [Azure Documentation](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest)
 
 ```bash
-brew tap genevieve/tap
-brew install az-automation
+az ad sp create-for-rbac --name ServicePrincipalforBosh
 ```
 
-![](images/image3.png)
+![](images/image2.5.png)
 
-- Run the following command. Replace **`<your subscription id>`** with your **subscription id** and create a unique **`identifier-uri`**.
 
-```bash
-az-automation \
-  --account <your subscription id> \
-  --identifier-uri http://example.com \
-  --display-name controlplane \
-  --credential-output-file controlplane-credentials.tfvars
-  ```
-
-![](images/image4.png)
-
-- If you want to verify that the service principal was create you can login to the Azure Console. Click **Azure Active Directory** then **App registrations** and you will see the new **controlplane** application was created.
+- If you want to verify that the service principal was create you can login to the Azure Console. Click **Azure Active Directory** then **App registrations** and you will see the new **ServicePrincipalforBosh** application was created.
 
     ![](images/image5.png)
 
 ### **STEP 3**: Pave IaaS using Terraform
 
-- Next step
-
-- Using the values from the file **controlplane-credentials.tfvars** populate the **terraform.tfvars** file with the content below.
+- Using the output from the previous step create and populate the **terraform.tfvars** file with the content below.
 
 ```bash
-subscription_id = "some-subscription-id"
-tenant_id       = "some-tenant-id"
-client_id       = "some-client-id"
-client_secret   = "some-client-secret"
+subscription_id = "Your Subscription Id"
+tenant_id       = "Your Tenant ID"
+client_id       = "appId from previous call"
+client_secret   = "password from previous call"
 
 env_name              = "controlplane"
 ops_manager_image_uri = "https://opsmanagerwestus.blob.core.windows.net/images/ops-manager-2.4-build.192.vhd"
@@ -213,35 +203,6 @@ bosh upload-release uaa-release-*.tgz
 
 ![](images/image17.png)
 
-- Add a custom vm extension that includes details of your IAAS specific load balancer configuration.
-
-- Create a vars file called **vm-extension-vars.yml** with the following content:
-
-```vi
----
-"control-plane-lb": controlplane-lb
-```
-
-- Create a config file called **vm-extension.yml**:
-
-```vi
-vm-extension-config:
-  name: control-plane-lb
-  cloud_properties:
-   security_group: controlplane-plane-security-group
-   load_balancer: ((control-plane-lb))
-```
-
-- Create and apply the custom extension with om
-
-```bash
-om --skip-ssl-validation create-vm-extension \
-  --config vm-extension.yml \
-  --vars-file vm-extension-vars.yml
-
-om --skip-ssl-validation apply-changes
-```
-
 - Retrieve the Control Plane domain and availability zones from Terraform.
 
 ```bash
@@ -253,11 +214,11 @@ export CONTROL_PLANE_ROOT_DOMAIN="$(terraform output control_plane_domain)"
 ```vi
 ---
 external_url: https://plane.pcfcontrolplane.<your domain>
-persistent_disk_type: 10240
-vm_type: Standard_DS2_v2
+persistent_disk_type: 1048576
+vm_type: Standard_F4s
 azs: ["null"]
 network_name: control-plane
-wildcard_domain: "*.pcfcontrolplane.<your domain>"
+wildcard_domain: "plane.pcfcontrolplane.<your domain>"
 uaa_url: https://uaa.pcfcontrolplane.<your domain>
 uaa_ca_cert: |
   $(credhub get -n /p-bosh/control-plane/control-plane-tls -k certificate | awk ‘{printf “%s\r\n  “, $0}’)
@@ -281,6 +242,81 @@ bosh deploy -d control-plane control-plane-*.yml \
 ```
 
 ![](images/image18.png)
+
+
+- Run the following command to verify that the deployment instances are running:
+
+```bash
+bosh instances -d control-plane
+```
+
+![](images/image19.png)
+
+<a id="concourse"></a>
+
+## Login to Control Plane
+
+### **STEP 6**: Login to Control Plane UI
+
+- You should also be logged into credhub if you have used the **om bosh-env eval** line from above. This allows you to easily get the credential we need to test the login of our control-plane.
+
+```bash
+credhub get -n $(credhub find | grep uaa_users_admin | awk '{print $3}')
+```
+
+![](images/image20.png)
+
+- From any browser, access Concourse UI using URL defined by:
+
+```bash
+echo https://"$(terraform output control_plane_domain)"
+```
+
+![](images/image21.png)
+
+![](images/image22.png)
+
+- CLick **login** in the upper right hand corner.
+
+- Enter **admin** for the `username`, and the password retrieved from Credhub as the `password` and click **SIGN IN**.
+
+  ![](images/image23.png)
+
+- Click **Authorize** 
+
+**Note:** If the redirect fails, refresh the browser and click login again
+
+  ![](images/image24.png)
+
+### **STEP 7**: Login using FLY CLI
+
+- login to Concourse using the main team. You wiReplace **password** with value retrieved from Credhub.
+
+**Note:** You will be ask to authenticate via the browser. Copy the URL into your browser. Since we already authenticated in previous step you should not be ask to login.
+
+```bash
+fly login --target main -k -c https://$(terraform output control_plane_domain)
+```
+
+![](images/image25.png)
+
+
+- After authenticating into Concourse, Create a team name **dev** for development pipelines..
+
+```bash
+fly set-team -t main -n dev --allow-all-users
+```
+
+![](images/image26.png)
+
+- Login to the new team:
+
+```bash
+fly login --target dev -k -c https://$(terraform output control_plane_domain)
+```
+
+![](images/image27.png)
+
 
 
 
