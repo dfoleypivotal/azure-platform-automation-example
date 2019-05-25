@@ -11,6 +11,7 @@ This workshop will walk you through the process of deploying **Pivotal Cloud Fou
 
 - [Install Pivotal Control Plane](#install)
 - [Login to Concourse](#concourse)
+- [Deploy PCF using Concourse Pipeline - TODOe](#pipeline)
 
 ## Required Artifacts
 
@@ -23,6 +24,8 @@ This workshop will walk you through the process of deploying **Pivotal Cloud Fou
 <a id="install"></a>
 
 ## Install Pivotal Control Plane
+
+**Control Plane** is an automation environment intended to execute **PCF Automation** tools to manage multiple PCF foundations in an automated fashion. In general, automation will help you update foundations without close attention and enable more team members to confidently upgrade or create PCF environments. This in turn will free up more time for those who operate a PCF platform for their business.
 
 ### **STEP 1**: Clone Terraform template repository
 
@@ -75,7 +78,7 @@ az ad sp create-for-rbac --name ServicePrincipalforBosh
 
 ### **STEP 3**: Pave IaaS using Terraform
 
-- Using the output from the previous step create and populate the **terraform.tfvars** file with the content below.
+- Using the output from the previous steps create and populate the **terraform.tfvars** file with the content below.
 
 ```bash
 subscription_id = "Your Subscription Id"
@@ -132,7 +135,7 @@ echo https://"$(terraform output ops_manager_dns)"
 
 - Follow the Pivotal documentation [Configuring BOSH Director on Azure](https://docs.pivotal.io/pivotalcf/2-4/om/azure/config-manual.html)
 
-**Note:** On the *Create Networks Page* only create one network, following the *infrastructure* network guide, and set the *Name* field to *control-plane-subnet*
+**Note:** On the *Create Networks Page* only create one network, following the *infrastructure* network guide, and set the *Name* field to **control-plane**
 
 - For automated configuration run script **deploy-om-director.sh**
 
@@ -203,7 +206,7 @@ bosh upload-release uaa-release-*.tgz
 
 ![](images/image17.png)
 
-- Retrieve the Control Plane domain and availability zones from Terraform.
+- Retrieve the Control Plane domain.
 
 ```bash
 export CONTROL_PLANE_ROOT_DOMAIN="$(terraform output control_plane_domain)"
