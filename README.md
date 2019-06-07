@@ -66,7 +66,7 @@ az account list
 - Create Service Account for Bosh. For more details please view [Azure Documentation](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest)
 
 ```bash
-az ad sp create-for-rbac --name ServicePrincipalforBosh
+az ad sp create-for-rbac --name ServicePrincipalforBosh<your initials>
 ```
 
 ![](images/image2.5.png)
@@ -183,6 +183,11 @@ chmod 0600 $OPS_MANAGER_KEY_PATH
 export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME="admin"
 export OM_PASSWORD="$(terraform output ops_manager_password)"
+export OM_IP="$(terraform output ops_manager_ip)"
+ssh -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP
+scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/setupPivNet.sh ubuntu@$OM_IP:~/.
+scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/getControlPlaneComponents_v31.sh ubuntu@$OM_IP:~/.
+scp -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP:~/apps/control-plane*.yml .
 ```
 
 ![](images/image16.png)
@@ -327,6 +332,28 @@ fly login --target dev -k -c https://$(terraform output control_plane_domain)
 ```
 
 ![](images/image27.png)
+
+## Deploye Pivotal Cloud Foundry via Platform Automation
+
+### **STEP 7**: Add to Credhub
+
+- If you need to setup your environment run the following commands.
+
+```bash
+az login
+export OM_TARGET="https://$(terraform output ops_manager_dns)"
+export OM_USERNAME="admin"
+export OM_PASSWORD="$(terraform output ops_manager_password)"
+export OPS_MANAGER_KEY_PATH=./ops_manager_ssh_private_key
+eval "$(om --skip-ssl-validation bosh-env --ssh-private-key $OPS_MANAGER_KEY_PATH)"
+```
+
+- Set PivNet API Token in Credhub
+
+```bash
+credhub login
+credhub set --name /pipeline/dev/pivnet-token --type value --value "Your PivNet Token"
+```
 
 
 
