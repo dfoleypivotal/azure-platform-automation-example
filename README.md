@@ -98,7 +98,7 @@ dns_subdomain         = "pcfcontrolplane"
 
 ```bash
 terraform init
-terraform apply
+terraform apply -auto-approve
 ```
 
 ![](images/image7.png)
@@ -147,26 +147,11 @@ echo https://"$(terraform output ops_manager_dns)"
 
 ### **STEP 5**: Deploy Control Plane via Manifest
 
-- Retrieve the assets from [Pivotal Network](https://network.pivotal.io/). Download the manifest and all of the releases from [Pivotal Control Plane Components](https://network.pivotal.io/products/p-control-plane-components/#/releases/359492)
+- TO make the process of downloading and uploading the **Control Plane Components** you will us the PivNet CLI running from the Ops Manager VM. You will modify to scripts. First script will install the PivNet CLI on the Ops Manager VM and the second will download and upload the required components.
 
-**Note:** Currently you need to select **Release 0.0.31**
+- First let setup our environment for BOSH deployment
 
-![](images/image12.png)
-
-- Download the stemcell for the releases from [Stemcells for PCF](https://network.pivotal.io/products/stemcells-ubuntu-xenial#/releases/354816)
-
-    ![](images/image13.png)
-
-
-- Move downloaded files to current directory (it will make it easier to upload the assets later)
-
-```bash
-cp ~/Downloads/{control-plane*.yml,uaa-release*.tgz,credhub-release*.tgz,postgres-release*.tgz,garden-runc*.tgz,concourse-release*.tgz,*bosh-stemcell*.tgz} .
-```
-
-![](images/image14.png)
-
-- You need to upload each asset to your Ops Manager VM in order to upload them to BOSH. Save the Ops Manager SSH KEY to an environment variable (the ***OPS_MANAGER_KEY_PATH*** variable can be arbitrary)
+- Save the Ops Manager SSH KEY to an environment variable (the ***OPS_MANAGER_KEY_PATH*** variable can be arbitrary)
 
 ```bash
 export OPS_MANAGER_KEY_PATH=./ops_manager_ssh_private_key
@@ -184,10 +169,6 @@ export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME="admin"
 export OM_PASSWORD="$(terraform output ops_manager_password)"
 export OM_IP="$(terraform output ops_manager_ip)"
-ssh -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP
-scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/setupPivNet.sh ubuntu@$OM_IP:~/.
-scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/getControlPlaneComponents_v31.sh ubuntu@$OM_IP:~/.
-scp -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP:~/apps/control-plane*.yml .
 ```
 
 ![](images/image16.png)
@@ -198,18 +179,58 @@ scp -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP:~/apps/control-plane*.yml .
 eval "$(om --skip-ssl-validation bosh-env --ssh-private-key $OPS_MANAGER_KEY_PATH)"
 ```
 
-- Upload the assets to BOSH
+- Using your favorite editor modify the **setupPivNet.sh** to include your PivNet API Token.
 
 ```bash
-bosh upload-stemcell *bosh-stemcell*.tgz
-bosh upload-release concourse-release-*.tgz
-bosh upload-release credhub-release-*.tgz
-bosh upload-release garden-runc-release-*.tgz
-bosh upload-release postgres-release-*.tgz
-bosh upload-release uaa-release-*.tgz
+vi ../../azure-platform-automation-example/scripts/setupPivNet.sh
 ```
 
-![](images/image17.png)
+![](images/image12.2.png)
+
+- Next we will update the script **getControlPlaneComponents** with BOSH environment variable.
+
+```bash
+env | grep BOSH
+vi ../../azure-platform-automation-example/scripts/getControlPlaneComponents_v31.sh
+```
+
+![](images/image12.4.png)
+![](images/image12.6.png)
+
+- Now copy the scripts over to the Ops Manager VM and SSH onto the VM
+
+```bash
+scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/setupPivNet.sh ubuntu@$OM_IP:~/.
+scp -i $OPS_MANAGER_KEY_PATH ../../azure-platform-automation-example/scripts/getControlPlaneComponents_v31.sh ubuntu@$OM_IP:~/.
+ssh -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP
+```
+
+![](images/image12.8.png)
+
+- Run script **setupPivNet.sh** to install PivNet CLI
+
+```bash
+source setupPivNet.sh
+```
+
+![](images/image13.2.png)
+
+- Copy script **getControlPlaneComponents_v31.sh** to newly created apps directory and execute.
+
+```bash
+cp ../getControlPlaneComponents_v31.sh .
+source getControlPlaneComponents_v31.sh
+```
+
+![](images/image13.4.png)
+
+- Exit Ops Manager VM and copy to Control Plane YAML file to your local machine.
+
+```bash
+scp -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP:~/apps/control-plane*.yml .
+```
+
+![](images/image13.6.png)
 
 - Retrieve the Control Plane domain.
 
