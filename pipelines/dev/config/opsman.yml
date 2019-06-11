@@ -1,0 +1,25 @@
+---
+opsman-configuration:
+  azure:
+    subscription_id: ((subscription_id))
+    resource_group: nonprod
+    tenant_id: ((tenant_id))
+    client_id: ((client_id))
+    client_secret: ((client_secret))
+    location: westus
+    container: opsmanagerimage  # hardcoded in terraform
+    network_security_group: nonprod-ops-manager-security-group  # terraform output ops_manager_security_group_name
+
+    vpc_subnet: /subscriptions/((subscription_id))/resourceGroups/pcfazure/providers/Microsoft.Network/virtualNetworks/pcfazure-virtual-network/subnets/pcfazure-infrastructure-subnet
+
+    storage_account: l1irt708kxpfz4xzzklc  # terraform output ops_manager_storage_account
+
+    ssh_public_key: ((ssh_public_key))  # terraform output ops_manager_ssh_public_key
+    vm_name: dev-ops-manager
+    boot_disk_size: 100
+    cloud_name: AzureCloud
+
+    use_unmanaged_disk: false
+
+    public_ip: 51.143.16.131      # terraform output ops_manager_public_ip
+    private_ip: 10.0.8.4          # terraform output ops_manager_private_ip

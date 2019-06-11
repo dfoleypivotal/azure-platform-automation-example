@@ -1,0 +1,5 @@
+subscription_id: ((azure_subscription_id))
+tenant_id: ((azure_tenant_id))
+client_id: ((azure_client_id))
+client_secret: ((azure_client_secret))
+ssh_public_key: ((ops_manager_ssh_key.public_key))

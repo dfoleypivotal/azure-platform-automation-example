@@ -1,0 +1,10 @@
+env_name: pcfazure
+ops_manager_host: pcf.pcfazure.dfoleypivotal.com
+
+configuration:
+  uri: git@github.com:dfoleypivotal/azure-platform-automation-example.git
+  branch: master
+
+credhub-server: https://plane.controlplane.dfoleypivotal.com:8844
+credhub-client: admin
+credhub-interpolation-prefix: /pipeline/dev

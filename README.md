@@ -366,7 +366,9 @@ export OM_TARGET="https://$(terraform output ops_manager_dns)"
 export OM_USERNAME="admin"
 export OM_PASSWORD="$(terraform output ops_manager_password)"
 export OPS_MANAGER_KEY_PATH=./ops_manager_ssh_private_key
+export OM_IP="$(terraform output ops_manager_ip)"
 eval "$(om --skip-ssl-validation bosh-env --ssh-private-key $OPS_MANAGER_KEY_PATH)"
+credhub get -n $(credhub find | grep uaa_users_admin | awk '{print $3}')
 ```
 
 - Set PivNet API Token in Credhub
@@ -376,7 +378,29 @@ credhub login
 credhub set --name /pipeline/dev/pivnet-token --type value --value "Your PivNet Token"
 ```
 
+- Create test pipeline
 
+```bash
+ az storage account create --resource-group controlplane --name dfoleystore
+ az storage account keys list --account-name dfoleystore
+ az storage account keys list \
+    --account-name dfoleystore \
+    --resource-group controlplane \
+    --output table
+export AZURE_STORAGE_ACCOUNT="dfoleystore"
+export AZURE_STORAGE_KEY="Storage Key"
+ az storage container create --account-name dfoleystore --name artifacts
+ az storage blob upload \
+    --container-name artifacts \
+    --name platform-automation-image-3.0.1.tgz \
+    --file ~/Downloads/platform-automation-image-3.0.1.tgz
+az storage blob upload \
+    --container-name artifacts \
+    --name platform-automation-tasks-3.0.1.zip \
+    --file ~/Downloads/platform-automation-tasks-3.0.1.zip
+az storage blob list --container-name artifacts
+
+ ```
 
 
 
