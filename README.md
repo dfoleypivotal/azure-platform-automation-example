@@ -224,7 +224,7 @@ source getControlPlaneComponents_v31.sh
 
 ![](images/image13.4.png)
 
-- Exit Ops Manager VM and copy to Control Plane YAML file to your local machine.
+- **Exit** Ops Manager VM and copy to Control Plane YAML file to your local machine.
 
 ```bash
 scp -i $OPS_MANAGER_KEY_PATH ubuntu@$OM_IP:~/apps/control-plane*.yml .
@@ -369,6 +369,38 @@ export OPS_MANAGER_KEY_PATH=./ops_manager_ssh_private_key
 export OM_IP="$(terraform output ops_manager_ip)"
 eval "$(om --skip-ssl-validation bosh-env --ssh-private-key $OPS_MANAGER_KEY_PATH)"
 credhub get -n $(credhub find | grep uaa_users_admin | awk '{print $3}')
+```
+
+- Terraform IaaS
+
+```bash
+cd ../terraforming-pas/
+cp ../terraforming-control-plane/terraform.tfvars .
+```
+
+- Update terrafrom.tfvars
+
+```bash
+subscription_id = "Your Subscription Id"
+tenant_id       = "Your Tenant ID"
+client_id       = "appId from previous call"
+client_secret   = "password from previous call"
+
+env_name              = "pcfazure"
+env_short_name        = "pcfazure"
+ops_manager_image_uri = "https://opsmanagerwestus.blob.core.windows.net/images/ops-manager-2.4-build.192.vhd"
+ops_manager_vm        = false
+location              = "WestUS2"
+dns_suffix            = "Your Domain"
+
+dns_subdomain         = "pas.pcfazure"
+```
+
+- Create Infrastructure 
+
+```bash
+terraform init
+terraform apply -auto-approve
 ```
 
 - Set PivNet API Token in Credhub
